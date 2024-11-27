@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annual Function Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .qr-section, .scan-section, .attendance-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .qr-section img {
+            margin-top: 10px;
+            max-width: 200px;
+        }
+
+        .attendance-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .attendance-table {
+            width: 60%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+        .attendance-table th, .attendance-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .attendance-table th {
+            background-color: #f1f1f1;
+        }
+
+        .search-bar {
+            margin: 20px;
+            text-align: center;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .scan-section {
+            margin-top: 20px;
+        }
+
+        .scan-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .scan-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Annual Function Attendance</h1>
+
+    <!-- QR Code Generator Section -->
+    <div class="qr-section">
+        <h2>QR Code Generator</h2>
+        <input type="text" id="qrData" placeholder="Enter Student Name and Admission Number" />
+        <button onclick="generateQRCode()">Generate QR Code</button>
+        <div id="qrCode"></div>
+    </div>
+
+    <!-- QR Code Scanner Section -->
+    <div class="scan-section">
+        <h2>QR Code Scanner</h2>
+        <button class="scan-button" onclick="startScanner()">Start Scanner</button>
+        <div id="scannerOutput"></div>
+    </div>
+
+    <!-- Student Search Section -->
+    <div class="search-bar">
+        <input type="text" id="searchStudent" onkeyup="searchStudent()" placeholder="Search Student by Name or Admission Number" />
+    </div>
+
+    <!-- Attendance Sheet Section -->
+    <div class="attendance-section">
+        <h2>Attendance Sheet</h2>
+        <table class="attendance-table" id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Admission Number</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Attendance records will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- QR Code Script -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<script>
+    // Generate QR Code
+    function generateQRCode() {
+        const data = document.getElementById('qrData').value;
+        if (data) {
+            const qrCodeDiv = document.getElementById('qrCode');
+            qrCodeDiv.innerHTML = '';
+            QRCode.toCanvas(document.createElement('canvas'), data, function (error, canvas) {
+                if (error) console.error(error);
+                qrCodeDiv.appendChild(canvas);
+            });
+        } else {
+            alert("Please enter student details.");
+        }
+    }
+
+    // Scanner functionality (simulated)
+    function startScanner() {
+        // Simulating QR code scan by manually setting a scanned value
+        const scannedData = document.getElementById('qrData').value;
+        if (scannedData) {
+            document.getElementById('scannerOutput').innerText = `Scanned Data: ${scannedData}`;
+            addToAttendance(scannedData);
+        } else {
+            alert("Please generate a QR Code first.");
+        }
+    }
+
+    // Add scanned data to the attendance sheet
+    function addToAttendance(data) {
+        const attendanceTable = document.getElementById('attendanceTable').getElementsByTagName('tbody')[0];
+        const [name, admissionNumber] = data.split(' - ');
+
+        const newRow = attendanceTable.insertRow();
+        newRow.innerHTML = `
+            <td>${name}</td>
+            <td>${admissionNumber}</td>
+            <td><button onclick="markPresent(this)">Mark Present</button></td>
+        `;
+    }
+
+    // Mark student as present
+    function markPresent(button) {
+        const row = button.closest('tr');
+        row.cells[2].innerText = "Present";
+        button.disabled = true; // Disable button after marking
+    }
+
+    // Search for student in the attendance list
+    function searchStudent() {
+        const searchValue = document.getElementById('searchStudent').value.toLowerCase();
+        const rows = document.getElementById('attendanceTable').getElementsByTagName('tbody')[0].rows;
+
+        for (let i = 0; i < rows.length; i++) {
+            const studentName = rows[i].cells[0].innerText.toLowerCase();
+            const admissionNumber = rows[i].cells[1].innerText.toLowerCase();
+            if (studentName.includes(searchValue) || admissionNumber.includes(searchValue)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
